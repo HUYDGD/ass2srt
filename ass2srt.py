@@ -1,8 +1,13 @@
 import os
 import pysubs2
 
-# Set the directory where the .ass files are located
-directory = './'
+# Prompt the user to enter the directory path
+directory = input("Enter the directory path where the .ass files are located: ")
+
+# Validate the directory path
+while not os.path.isdir(directory):
+    print("Invalid directory path. Please try again.")
+    directory = input("Enter the directory path where the .ass files are located: ")
 
 # Get a list of all .ass files in the directory
 ass_files = [file for file in os.listdir(directory) if file.endswith('.ass')]
