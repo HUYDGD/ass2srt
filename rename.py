@@ -1,5 +1,6 @@
 import os
 import re
+from natsort import natsorted, ns
 
 # Prompt the user to enter the directory path
 directory = input("Enter the directory path where the files are located: ")
@@ -20,27 +21,36 @@ while not season_number.isdigit():
 # Get a list of all files in the directory
 files = os.listdir(directory)
 
+# Sort the files using a natural sort with numeric sorting
+files = natsorted(files, alg=ns.REAL)
+
 # Regular expression pattern to match the episode number
-pattern = r'E(\d+)'
+pattern = r'(\d+)'
 
 # Loop through each file in the directory
-for file in files:
-    # Check if the file name matches the pattern
-    match = re.search(pattern, file, re.IGNORECASE)
-
+for i, file in enumerate(files, start=1):
+    # Extract the numeric part of the file name
+    match = re.search(pattern, file)
     if match:
-        # Extract the episode number
         episode_number = match.group(1)
+    else:
+        episode_number = str(i)
 
-        # Generate the new file name
-        new_file_name = f'S{season_number.zfill(2)}E{episode_number}'
+    # Generate the new file name
+    new_file_name = f'S{season_number.zfill(2)}E{episode_number.zfill(2)}'
 
-        # Get the file extension
-        file_extension = os.path.splitext(file)[1]
+    # Get the file extension
+    file_extension = os.path.splitext(file)[1]
 
-        # Rename the file
-        os.rename(os.path.join(directory, file), os.path.join(directory, new_file_name + file_extension))
+    # Check if the new file name already exists
+    new_file_path = os.path.join(directory, new_file_name + file_extension)
+    if os.path.exists(new_file_path):
+        print(f"File '{new_file_name + file_extension}' already exists. Skipping...")
+        continue
 
-        print(f"Renamed '{file}' to '{new_file_name + file_extension}'")
+    # Rename the file
+    os.rename(os.path.join(directory, file), new_file_path)
+
+    print(f"Renamed '{file}' to '{new_file_name + file_extension}'")
 
 print("Renaming complete!")
